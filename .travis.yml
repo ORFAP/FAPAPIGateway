@@ -1,0 +1,24 @@
+language: java
+sudo: required
+services:
+- docker
+jdk: oraclejdk8
+install: gradle assemble
+script: gradle check
+
+after_success:
+  - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+  - export REPO=darenegade/fapapigateway
+  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+  - docker build -f dockerfile -t $REPO:$COMMIT .
+  - docker tag $REPO:$COMMIT $REPO:$TAG
+  - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
+  - if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then docker push $REPO ; fi
+
+notifications:
+  email: false
+env:
+  global:
+  - secure: E6HnmkG6H4PEivMFwFCSe3YskW0XGsDmviM1mk93I/7RZIE0zbZ81Utsbqh2MKT58i8wYdYya9KCn45BYukOvAXzzhGCqctZ7dpmG9RdSQxbTvLBvOrKouHG1hbEMyBUxNXzlAnYz/mKxiSixJ3w/9O3PzkD+KRJo5R7QJNupUSgvSGsUcj68D8ZxD9MK5nWAeOUdqPVR7B7LWaHZz0JBkpM4H0/pAxEfeV8In/FYuzjvx9JuTvHqKQ8sNgvcBNkNbaQc8dXoSJ/1b0LOi/V0qx/I076Oe/806z0g8Iom07fYhcAQGDYh8NMy5PYDnzhS+CK/u0dihChV0wJszabdmipQOSGOgDaChop52E8C2wJ/cPXrifg8MpWAaJ+dg+i19YI+zwnLPYNC/j8NZXdUaZ6nkcQriOIqeO4tXnNTKQaA5fhezJjS93DmJ86Q+lijoMCaYdiMQkY8qJm0hQAv76uGuUUTUrV9WSzIt56wPwMuUFGzgq1IQBVBjI1wuyM5lyV37sOoxYRvJSlFbTs6VkNVb06PJ278t8NGfuGohYOhIOBeMDsom45a97GayqAduPM/wg+6kSDdoN8LDjClxmKUnEjGBUdnZMq2yCd8RVqp615jDTe99Ljyv6QO2x/jGi/lbJGEkeVZw5bFItKSK4LYZ/F7+1i44fMTJWqhhs=
+  - secure: ZBNfolYImVsU9bYc/Pw0s1WcRRp5i64JSVdpA6M4mO3he10h5VVbc9eyUxQWUIkpuFdfSrQTChqu4uRkQjSQUGzfhfvpn0G7dOKkWRcTGQNfC45Lawdw0gZQe0h42NTBALSoEdLgU+g7Ts132+iqniDA63607p3t1mt1bIHQgjdw1KuNqi4uEI3iOnNKw+lBcaBsp0Ig+A4E4wh1bMHbVvNC8h2ku5nb1gyKyTXrFwyKf1kXQwFem2K949oAlolyc7ovWWodX/fed00gj5DJEhzrmxoxhEnvu9GoxlG6+FqTq6t9IqiA9jbXeq8k/kjNJsTU9kEtHtcdXmfnFuBO48/PZ2ykhoAE2JRtRpfObnAHsSYZipHLtCF84H680EVGq1F169knsgKh9iySOPmOQmHd+ZaZURAxYuKdd9tO7jmV/6ho815eha+xBfNVDpdaYQdDLNMdQ/ZLknzOFQEQjJS5ZV0Iiws4BbY3CeOaC2J8/9uFW2XQbq+ssb8VcwFrIs+gtRWooLxEP8vpX8f6GjpHt+mSBQebUtHWE2pVGdj/qAHPgss4/qh2A5Ovc+ijHF5IpyKK1UL/1RkGpkB7BaocMzEgrsh5NCKo+knS8xSdyp3pWevb8oKtceJpR3opeFDDQG0AUOwimsOhKhWaHG6DrFJPz6IRB43j5OD2NaU=
+  - secure: pi15CkZ+diQ/jfdO9k5mb5lvbJxG7Sr5iPIAcH38kgybEZWi/UqWbil7bjwOwLq+uX8BcQjDliazRfkmbEX/jGh7J+E1rxdr1Pnd7czKWCDCBdaie+LEW/lAl4Nn248QMxhk55e+XWsnw3NWe2Rke7LLGu+a689o26KKJA3z4H6gbCJVB0l3lGi5TBgu/JxV9+M6v96J8DONsyLFYckBlxROSYl2xJ6+W2h5IHjB/pUyUd0ZcxSNHP/gD+wJH3OccEhWu3oFX5vp90p5IHux3EMCDlBMJ5TCWLI2IqNfXWfzrA5G9svciGcdmuxVrgORgPJlDfDgRc6JBfYGDtLkqBDNIjPQgR1nf983elZspnMZWVrhtRDkD17tDnqgOaLdQOH4JkpiBYuQN915iweNX0psHx5OwI4S2jIPEVttTB/ejPlc3SbyzWRh2/W45HS7mqeaCAsAbw3I5mpxhgnd3JhbhqZLO9jxteHrmPeUM2Q1b7pkeUhzdxsbJ+Fkvf6hl0psphKMYvIV13SrWbFMs1DFBJ/1hAqaSpVosMVvC/G8lHDUnhqbjlWX0b9AM52l5yHiJCa5wDdBSqhK9LOcmpIRZRCN0+56G5psud9+PAM8mg0QI+Jxdw/4uMxfopEtFZ2XAj4uJBPsGzBIyTrkC78OtB1x7Be9Ct+OKMGitp4=
