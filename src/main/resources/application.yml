@@ -1,6 +1,8 @@
 info:
   component: Zuul Server
 
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 10000000
+
 endpoints:
   restart:
     enabled: true
