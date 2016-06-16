@@ -3,6 +3,8 @@ info:
 
 hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 10000000
 
+ribbon.ReadTimeout = 10000000
+
 endpoints:
   restart:
     enabled: true
