@@ -3,7 +3,9 @@ info:
 
 hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 10000000
 
-ribbon.ReadTimeout = 10000000
+ribbon.ReadTimeout: 10000000
+zuul.host.connect-timeout-millis: 10000000
+zuul.host.socket-timeout-millis: 10000000
 
 endpoints:
   restart:
